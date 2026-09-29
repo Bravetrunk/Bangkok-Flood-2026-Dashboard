@@ -1,54 +1,160 @@
 <!doctype html>
 <html lang="th">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Bangkok Flood Intelligence — สถานการณ์น้ำท่วม กทม.</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
-<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-<style>
-:root{--bg:#020617;--panel:#0f172a;--panel2:#111c32;--line:#243047;--text:#f1f5f9;--muted:#94a3b8;--red:#ef4444;--orange:#f97316;--yellow:#eab308;--green:#22c55e;--blue:#3b82f6}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans Thai","Sarabun",sans-serif;line-height:1.5}.top{position:sticky;top:0;z-index:1100;background:rgba(2,6,23,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}.nav{max-width:1440px;margin:auto;padding:12px 20px;display:flex;align-items:center;gap:18px}.brand{font-weight:850;white-space:nowrap}.brand b{color:#f87171}.tabs{display:flex;gap:6px;overflow:auto}.tab{border:0;background:transparent;color:var(--muted);padding:8px 12px;border-radius:9px;cursor:pointer;font-weight:700}.tab.active,.tab:hover{color:white;background:#1e293b}.updated{margin-left:auto;color:var(--muted);font-size:11px;white-space:nowrap}.view{display:none}.view.active{display:block}.wrap{max-width:1400px;margin:auto;padding:24px}.hero{padding:70px 20px 58px;text-align:center;background:radial-gradient(circle at 50% 10%,#312e81 0,transparent 42%),linear-gradient(150deg,#0f172a,#020617)}.live{display:inline-flex;align-items:center;gap:8px;background:#7f1d1d;color:#fecaca;padding:6px 14px;border-radius:999px;font-size:12px;font-weight:800}.pulse{width:8px;height:8px;background:#4ade80;border-radius:50%;box-shadow:0 0 0 5px #22c55e22}.hero h1{font-size:clamp(34px,6vw,68px);line-height:1.04;margin:20px 0 10px;letter-spacing:-2px}.hero p{color:var(--muted);max-width:780px;margin:auto}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:-30px}.stat,.card{background:linear-gradient(145deg,var(--panel),#0b1222);border:1px solid var(--line);border-radius:16px}.stat{padding:22px;text-align:center;box-shadow:0 12px 30px #0005}.value{font-size:32px;font-weight:900;line-height:1}.label{color:var(--muted);font-size:12px;margin-top:7px}.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px;margin-top:16px}.c12{grid-column:span 12}.c8{grid-column:span 8}.c6{grid-column:span 6}.c4{grid-column:span 4}.card{padding:20px}.card h2,.card h3{margin:0 0 14px}.card h2{font-size:18px}.card h3{font-size:15px}.muted{color:var(--muted)}.alert{background:linear-gradient(130deg,#7f1d1d,#451a1a);border:1px solid #dc2626;border-radius:14px;padding:16px 20px}.timeline{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.event{background:#0b1222;border-top:3px solid var(--blue);padding:14px;border-radius:10px;font-size:13px}.event b{display:block;color:#93c5fd;margin-bottom:5px}.source-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.source{display:block;color:#bfdbfe;text-decoration:none;background:#111c32;padding:12px;border-radius:10px;border:1px solid var(--line);font-size:12px}.source:hover{border-color:#3b82f6}.chart{height:300px}.map-shell{height:calc(100vh - 65px);position:relative}.map{height:100%;width:100%;background:#08101f}.map-panel{position:absolute;z-index:1000;top:16px;right:16px;width:330px;max-height:calc(100% - 32px);overflow:auto;background:#0f172aee;backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:15px;padding:16px;box-shadow:0 15px 50px #0008}.search{width:100%;border:1px solid var(--line);background:#071020;color:white;border-radius:9px;padding:10px 12px;margin:8px 0}.legend{display:flex;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:12px}.swatch{display:inline-block;width:13px;height:13px;border-radius:3px;margin-right:5px;vertical-align:-2px}.districts{margin-top:10px}.district{display:flex;align-items:center;gap:8px;padding:8px;border-bottom:1px solid #1e293b;cursor:pointer;font-size:13px}.district:hover{background:#1e293b}.district i{width:9px;height:9px;border-radius:50%}.leaflet-tooltip,.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#0f172a!important;color:#f1f5f9!important;border-color:#334155!important}.table{width:100%;border-collapse:collapse;font-size:13px}.table th,.table td{padding:10px;text-align:left;border-bottom:1px solid var(--line)}.table th{color:var(--muted);font-size:11px}.status{font-size:11px;font-weight:800;padding:3px 8px;border-radius:999px;background:#7f1d1d;color:#fecaca}.foot{color:#64748b;font-size:11px;text-align:center;padding:24px;border-top:1px solid var(--line)}@media(max-width:900px){.stats{grid-template-columns:repeat(2,1fr)}.c8,.c6,.c4{grid-column:span 12}.timeline{grid-template-columns:1fr}.source-grid{grid-template-columns:1fr}.updated{display:none}.map-panel{width:calc(100% - 24px);right:12px;top:12px;max-height:48%}.hero h1{letter-spacing:-1px}}@media(max-width:520px){.stats{grid-template-columns:1fr}.wrap{padding:14px}.nav{gap:8px}.tab{padding:7px 9px;font-size:12px}.brand{font-size:13px}}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#79a9ad">
+  <meta name="description" content="แดชบอร์ดสถานการณ์น้ำท่วมกรุงเทพมหานคร 2569 พร้อมข้อมูลจากข่าว แผนที่ 50 เขต และแหล่งอ้างอิง">
+  <title>Bangkok Flood 2026 Dashboard — สถานการณ์น้ำท่วม กทม.</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 </head>
 <body>
-<header class="top"><nav class="nav"><div class="brand">BKK <b>FLOOD</b></div><div class="tabs"><button class="tab active" data-view="overview">ภาพรวม</button><button class="tab" data-view="dashboard">ข้อมูล</button><button class="tab" data-view="mapview">แผนที่ 50 เขต</button><button class="tab" data-view="sources">แหล่งข่าว/API</button></div><div class="updated">อัปเดตข้อมูลข่าว: 28 ก.ย. 2569</div></nav></header>
+<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+  <symbol id="icon-arrow" viewBox="0 0 24 24"><path d="M3 12h17m-7-7 7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+<div class="page-frame">
+  <header class="site-header">
+    <nav class="nav shell" aria-label="เมนูหลัก">
+      <div class="brand" aria-label="BKK FLOOD">
+        <svg class="brand-mark" viewBox="0 0 36 36" fill="none" aria-hidden="true"><path d="M4 23c4-7 7-10 10-10 4 0 3 11 8 11 3 0 5-6 10-10" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="27" cy="12" r="2" fill="currentColor"/></svg>
+        <span>BKK <strong>FLOOD</strong></span>
+      </div>
+      <div class="tabs" aria-label="ส่วนข้อมูล">
+        <button class="tab active" type="button" data-view="overview">ภาพรวม</button>
+        <button class="tab" type="button" data-view="dashboard">ข้อมูล</button>
+        <button class="tab" type="button" data-view="mapview">แผนที่ 50 เขต</button>
+        <button class="tab" type="button" data-view="sources">แหล่งข่าว/API</button>
+      </div>
+      <div class="updated">ข้อมูลข่าว ณ 28 ก.ย. 2569</div>
+    </nav>
+  </header>
 
-<main>
-<section id="overview" class="view active">
-  <div class="hero"><span class="live"><span class="pulse"></span> สถานการณ์ยังดำเนินอยู่</span><h1>น้ำท่วมกรุงเทพฯ<br><span style="color:#f87171">2569</span></h1><p>ศูนย์รวมข้อมูลสถานการณ์ ผลกระทบ เศรษฐกิจ และแผนที่เชิงโต้ตอบระดับเขต โดยรวบรวมจาก กทม. ปภ. และสำนักข่าวที่ตรวจสอบได้</p></div>
-  <div class="wrap"><div class="stats">
-    <div class="stat"><div class="value" style="color:#f87171">330 มม.</div><div class="label">ฝนสะสมสูงสุดบางพื้นที่ใน 4 วัน</div></div>
-    <div class="stat"><div class="value" style="color:#fb923c">~700K</div><div class="label">ประชาชน กทม. ได้รับผลกระทบโดยประมาณ</div></div>
-    <div class="stat"><div class="value" style="color:#60a5fa">8 เขต</div><div class="label">ยังมีน้ำท่วม ณ รายงาน 28 ก.ย.</div></div>
-    <div class="stat"><div class="value" style="color:#c4b5fd">7,014 ลบ.</div><div class="label">ผลกระทบเศรษฐกิจ กทม. กรณีฐาน</div></div>
-  </div><div class="grid">
-    <div class="c12 alert"><b>⚠️ จุดเฝ้าระวัง:</b> 29 ก.ย.–4 ต.ค. น้ำทะเลหนุนสูงอาจกระทบชุมชนนอกคันกั้นน้ำและเส้นทางริมเจ้าพระยา · น้ำท่วมโทร 1555 · การแพทย์ฉุกเฉินโทร 1669</div>
-    <div class="c8 card"><h2>ลำดับเหตุการณ์</h2><div class="timeline"><div class="event"><b>23–24 ก.ย.</b>ฝนหนักต่อเนื่องจากหย่อมความกดอากาศต่ำ</div><div class="event"><b>25 ก.ย.</b>ถนนหลักท่วม 14 จุด; มีนบุรีวัดฝน 101.5 มม.</div><div class="event" style="border-color:#ef4444"><b style="color:#fca5a5">26 ก.ย.</b>ประกาศพื้นที่ประสบสาธารณภัยครบ 50 เขต</div><div class="event" style="border-color:#eab308"><b style="color:#fde047">27 ก.ย.</b>หลายพื้นที่เริ่มลด แต่ชุมชนริมน้ำยังท่วมสูง</div><div class="event" style="border-color:#22c55e"><b style="color:#86efac">28 ก.ย.</b>รายงานเหลือ 8 เขตที่ยังมีน้ำท่วม</div></div></div>
-    <div class="c4 card"><h2>พื้นที่เร่งด่วน</h2><p><b>แฟลตคลองจั่น:</b> ตั้งวอร์รูมและครัวสนามเพื่อประชาชนราว 20,000 คน</p><p><b>เคหะร่มเกล้า:</b> เร่งอพยพและลำเลียงอาหารด้วยรถสูงและเรือ</p><p><b>คลองหลัก:</b> คลองแสนแสบ คลองเปรมประชากร และคลองประเวศมีระดับสูง</p></div>
-    <div class="c6 card"><h2>การช่วยเหลือ</h2><table class="table"><tr><th>รายการ</th><th>รายงาน</th></tr><tr><td>ศูนย์พักพิงที่เตรียม</td><td>233 แห่ง</td></tr><tr><td>ผู้ใช้ศูนย์พักพิง</td><td>ประมาณ 4,200–4,900 คน*</td></tr><tr><td>ผู้ต้องการอาหารส่งถึงพื้นที่</td><td>60,000–70,000 คน</td></tr><tr><td>สายด่วน 1669</td><td>มากกว่า 7,200 สาย/วัน</td></tr></table><p class="muted" style="font-size:11px">*ตัวเลขต่างช่วงเวลาจาก Reuters และ The Guardian</p></div>
-    <div class="c6 card"><h2>ผลกระทบเศรษฐกิจ</h2><p>ม.หอการค้าไทยประเมินผลกระทบช่วง 25–29 ก.ย. กรณีฐานทั้งประเทศ <b>12,283 ล้านบาท</b> โดยกรุงเทพฯ คิดเป็น <b>7,014 ล้านบาท หรือ 57%</b> และยังไม่รวมความเสียหายต่อบ้าน รถ สินค้าคงคลัง และผลผลิตเกษตร</p></div>
-  </div></div>
-</section>
+  <main>
+    <section id="overview" class="view active" aria-labelledby="overview-title">
+      <div class="shell">
+        <div class="hero">
+          <div class="hero-art">
+            <img src="assets/bangkok-overview.svg" alt="" width="1000" height="600" fetchpriority="high">
+            <div class="hero-content">
+              <span class="hero-meta">ข้อมูลจากรายงานข่าว 28 ก.ย. 2569</span>
+              <h1 id="overview-title">น้ำท่วม<br>กรุงเทพฯ <span>2569</span></h1>
+              <p class="hero-sub">ศูนย์รวมข้อมูลสถานการณ์ ผลกระทบ เศรษฐกิจ และแผนที่เชิงโต้ตอบระดับเขต โดยรวบรวมจาก กทม. ปภ. และสำนักข่าวที่ตรวจสอบได้</p>
+              <div class="hero-actions">
+                <button class="action-primary" type="button" data-open-view="mapview">สำรวจแผนที่ 50 เขต <span class="arrow-disc"><svg aria-hidden="true"><use href="#icon-arrow"/></svg></span></button>
+                <button class="action-secondary" type="button" data-open-view="dashboard">ดูข้อมูลและกราฟ</button>
+              </div>
+            </div>
+          </div>
+          <div class="hero-caption">
+            <span><strong>สีส้มแดง</strong> แสดง 8 เขตที่ยังมีรายงานน้ำท่วมตามข้อมูล 28 ก.ย.</span>
+            <span>ภาพขอบเขตเขตจาก GeoJSON · <a href="https://weather.bangkok.go.th/">ตรวจข้อมูลปัจจุบันก่อนเดินทาง</a></span>
+          </div>
+        </div>
 
-<section id="dashboard" class="view"><div class="wrap"><div class="grid">
-  <div class="c6 card"><h2>ปริมาณฝนรายสถานีที่ยืนยันได้ — 25 ก.ย.</h2><div class="chart"><canvas id="rainChart"></canvas></div><p class="muted" style="font-size:11px">สำนักการระบายน้ำ กทม.: มีนบุรี 101.5, คลองสามวา 96.5, ลาดกระบัง 86.5 มม.</p></div>
-  <div class="c6 card"><h2>ผลกระทบเศรษฐกิจ (ล้านบาท)</h2><div class="chart"><canvas id="econChart"></canvas></div><p class="muted" style="font-size:11px">ม.หอการค้าไทย: กรณีฐาน 12,283 ล้านบาท</p></div>
-  <div class="c12 card"><h2>8 เขตที่ยังมีน้ำท่วมตามรายงาน 28 ก.ย.</h2><table class="table"><thead><tr><th>เขต</th><th>สถานะ</th><th>พื้นที่/จุดอ้างอิงจากข่าว</th></tr></thead><tbody id="activeTable"></tbody></table><p class="muted" style="font-size:11px;margin-top:10px">หมายเหตุ: สีในแผนที่แสดง “มีรายงานยังท่วม” ไม่ใช่ความลึกน้ำแบบเรียลไทม์ เพราะแหล่งข่าวไม่ได้เปิดตัวเลขความลึกครบทุกเขต</p></div>
-</div></div></section>
+        <div class="intro">
+          <h2>ดูภาพรวม แล้วเจาะพื้นที่ที่คุณต้องเดินทาง</h2>
+          <p>ข้อมูลในหน้านี้เป็นภาพรวมจากรายงานข่าว ไม่ใช่ข้อมูลระดับน้ำแบบเรียลไทม์ ใช้แผนที่เพื่อค้นหาเขต และตรวจสอบสถานการณ์ล่าสุดจากหน่วยงานต้นทางอีกครั้ง</p>
+        </div>
 
-<section id="mapview" class="view"><div class="map-shell"><div id="map" class="map"></div><aside class="map-panel"><h3 style="margin:0">แผนที่สถานการณ์ 50 เขต</h3><p class="muted" style="font-size:11px;margin:3px 0 8px">Polygon API: Bangkok District GeoJSON · แผนที่ฐาน: OpenStreetMap</p><input id="search" class="search" placeholder="ค้นหาเขต..." aria-label="ค้นหาเขต"><div class="legend"><span><i class="swatch" style="background:#dc2626"></i>ยังมีน้ำท่วม</span><span><i class="swatch" style="background:#334155"></i>ไม่มีรายงานยืนยันล่าสุด</span></div><div id="districtList" class="districts"></div></aside></div></section>
+        <div class="metrics" aria-label="ตัวเลขสถานการณ์สำคัญ">
+          <div class="metric"><span class="metric-value">330 มม.</span><span class="metric-label">ฝนสะสมสูงสุดบางพื้นที่ใน 4 วัน</span></div>
+          <div class="metric"><span class="metric-value">~700K</span><span class="metric-label">ประชาชน กทม. ได้รับผลกระทบโดยประมาณ</span></div>
+          <div class="metric"><span class="metric-value">8 เขต</span><span class="metric-label">ยังมีน้ำท่วม ณ รายงาน 28 ก.ย.</span></div>
+          <div class="metric"><span class="metric-value">7,014 ลบ.</span><span class="metric-label">ผลกระทบเศรษฐกิจ กทม. กรณีฐาน</span></div>
+        </div>
 
-<section id="sources" class="view"><div class="wrap"><div class="grid"><div class="c8 card"><h2>แหล่งข่าวและข้อมูล</h2><div class="source-grid">
-<a class="source" href="https://www.thairath.co.th/news/local/bangkok/2962336" target="_blank">ไทยรัฐ — สรุปพื้นที่น้ำท่วม 27 ก.ย.</a><a class="source" href="https://thestandard.co/bangkok-flood-minburi-drainage/" target="_blank">THE STANDARD — สำนักการระบายน้ำ 25 ก.ย.</a><a class="source" href="https://www.hfocus.org/content/2026/09/39644" target="_blank">Hfocus — ประกาศภัยพิบัติ 50 เขต</a><a class="source" href="https://www.reuters.com/business/environment/bangkok-floodwaters-recede-officials-race-drain-canals-2026-09-27/" target="_blank">Reuters — น้ำลดและศูนย์พักพิง</a><a class="source" href="https://www.thaipbs.or.th/news/content/558751" target="_blank">Thai PBS — ผลกระทบเศรษฐกิจ</a><a class="source" href="https://www.pptvhd36.com/news/สังคม/284283" target="_blank">PPTV — 8 เขตยังมีน้ำท่วม</a></div></div><div class="c4 card"><h2>Map APIs</h2><p><b>Boundary API</b><br><a class="muted" href="https://raw.githubusercontent.com/pcrete/gsvloader-demo/master/geojson/Bangkok-districts.geojson" target="_blank">Bangkok Districts GeoJSON</a></p><p><b>Tile API</b><br><span class="muted">OpenStreetMap: tile.openstreetmap.org/{z}/{x}/{y}.png</span></p><p><b>Library</b><br><span class="muted">Leaflet 1.9.4 + Chart.js 4.4.7 via jsDelivr</span></p><p class="muted" style="font-size:11px">ไม่มี API key และไม่มี secret ฝังในไฟล์; โปรดปฏิบัติตาม OSM Tile Usage Policy</p></div></div></div></section>
-</main>
-<footer class="foot">ข้อมูลสถานการณ์เป็น snapshot ตามข่าวที่เผยแพร่ ไม่ใช่เซนเซอร์ระดับน้ำแบบ real-time · ควรตรวจสอบ weather.bangkok.go.th และ dds.bangkok.go.th ก่อนเดินทาง</footer>
-<script>
-const active={"Lat Krabang":{th:"ลาดกระบัง",note:"เคหะร่มเกล้า/ถนนลาดกระบัง"},"Bang Kapi":{th:"บางกะปิ",note:"แฟลตคลองจั่น/คลองแสนแสบ"},"Min Buri":{th:"มีนบุรี",note:"สุวินทวงศ์/หทัยราษฎร์"},"Saphan Sung":{th:"สะพานสูง",note:"พื้นที่เชื่อมรามคำแหง"},"Suanluang":{th:"สวนหลวง",note:"คลองประเวศ/อ่อนนุช"},"Bueng Kum":{th:"บึงกุ่ม",note:"นวมินทร์/เสรีไทย"},"Khlong Sam Wa":{th:"คลองสามวา",note:"หทัยราษฎร์/นิมิตใหม่"},"Sai Mai":{th:"สายไหม",note:"พหลโยธิน/วัชรพล"}};
-const geoUrl="https://raw.githubusercontent.com/pcrete/gsvloader-demo/master/geojson/Bangkok-districts.geojson";let map,geoLayer,layers={},mapLoaded=false;
-document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab,.view').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById(b.dataset.view).classList.add('active');if(b.dataset.view==='mapview'){initMap();setTimeout(()=>map.invalidateSize(),100)}});
-function initMap(){if(mapLoaded)return;mapLoaded=true;map=L.map('map',{zoomControl:true}).setView([13.7563,100.60],11);L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);fetch(geoUrl).then(r=>{if(!r.ok)throw Error('GeoJSON '+r.status);return r.json()}).then(g=>{geoLayer=L.geoJSON(g,{style:f=>{let a=!!active[f.properties.dname_e];return{fillColor:a?'#dc2626':'#334155',fillOpacity:a?.68:.34,color:'#0f172a',weight:1.3}},onEachFeature:(f,l)=>{let p=f.properties,a=active[p.dname_e],name=a?a.th:p.dname.replace(/^เขต/,'');layers[p.dname_e]=l;l.bindTooltip(`<b>${name}</b><br>${a?'<span style="color:#fca5a5">ยังมีรายงานน้ำท่วม</span><br>'+a.note:'ไม่มีรายงานยืนยันว่ายังท่วมในชุดข้อมูลล่าสุด'}`,{sticky:true});l.on('mouseover',()=>l.setStyle({weight:3,color:'#f8fafc',fillOpacity:.85}));l.on('mouseout',()=>geoLayer.resetStyle(l))}}).addTo(map);map.fitBounds(geoLayer.getBounds(),{padding:[15,15]});renderDistricts(g.features)}).catch(e=>document.getElementById('map').innerHTML=`<div style="padding:40px;color:#fca5a5">โหลด Map API ไม่สำเร็จ: ${e.message}</div>`)}
-function renderDistricts(features){const list=document.getElementById('districtList'),q=document.getElementById('search');const draw=()=>{let s=q.value.trim().toLowerCase();list.innerHTML=features.map(f=>{let en=f.properties.dname_e,a=active[en],th=a?a.th:f.properties.dname.replace(/^เขต/,'');return{en,th,a}}).filter(x=>!s||x.th.includes(s)||x.en.toLowerCase().includes(s)).sort((a,b)=>(!!b.a-!!a.a)||a.th.localeCompare(b.th,'th')).map(x=>`<div class="district" data-en="${x.en}"><i style="background:${x.a?'#dc2626':'#64748b'}"></i><span>${x.th}</span>${x.a?'<span class="status" style="margin-left:auto">ยังท่วม</span>':''}</div>`).join('');list.querySelectorAll('.district').forEach(el=>el.onclick=()=>{let l=layers[el.dataset.en];map.fitBounds(l.getBounds(),{padding:[60,60],maxZoom:14});l.openTooltip()})};q.oninput=draw;draw()}
-document.getElementById('activeTable').innerHTML=Object.values(active).map(x=>`<tr><td><b>${x.th}</b></td><td><span class="status">ยังมีน้ำท่วม</span></td><td>${x.note}</td></tr>`).join('');
-Chart.defaults.color='#94a3b8';Chart.defaults.borderColor='#243047';Chart.defaults.font.family='-apple-system,Noto Sans Thai,sans-serif';new Chart(document.getElementById('rainChart'),{type:'bar',data:{labels:['มีนบุรี','คลองสามวา','ลาดกระบัง'],datasets:[{data:[101.5,96.5,86.5],backgroundColor:['#ef4444','#f97316','#eab308'],borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,title:{display:true,text:'มิลลิเมตร'}},x:{grid:{display:false}}}}});new Chart(document.getElementById('econChart'),{type:'doughnut',data:{labels:['กรุงเทพฯ','ภาคตะวันออก','ปริมณฑล','พื้นที่อื่น'],datasets:[{data:[7014,2976,1839,454],backgroundColor:['#ef4444','#f97316','#eab308','#64748b'],borderColor:'#0f172a',borderWidth:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,padding:16}}}}});
-</script>
-</body></html>
+        <div class="watch-band" role="note">
+          <div>
+            <h2>จุดเฝ้าระวัง 29 ก.ย.–4 ต.ค.</h2>
+            <p>น้ำทะเลหนุนสูงอาจกระทบชุมชนนอกคันกั้นน้ำและเส้นทางริมเจ้าพระยา</p>
+            <p class="help">น้ำท่วมโทร <a href="tel:1555">1555</a> · การแพทย์ฉุกเฉินโทร <a href="tel:1669">1669</a></p>
+          </div>
+          <div class="watch-symbol" aria-hidden="true">!</div>
+        </div>
+
+        <div class="section">
+          <div class="section-heading"><h2>ลำดับเหตุการณ์</h2><p>ภาพรวมจากรายงานช่วง 23–28 กันยายน 2569</p></div>
+          <div class="timeline">
+            <div class="event"><span class="event-date">23–24 ก.ย.</span><span class="event-detail">ฝนหนักต่อเนื่องจากหย่อมความกดอากาศต่ำ</span><span class="event-dot" aria-hidden="true"></span></div>
+            <div class="event"><span class="event-date">25 ก.ย.</span><span class="event-detail">ถนนหลักท่วม 14 จุด; มีนบุรีวัดฝน 101.5 มม.</span><span class="event-dot" aria-hidden="true"></span></div>
+            <div class="event"><span class="event-date">26 ก.ย.</span><span class="event-detail">ประกาศพื้นที่ประสบสาธารณภัยครบ 50 เขต</span><span class="event-dot" aria-hidden="true"></span></div>
+            <div class="event"><span class="event-date">27 ก.ย.</span><span class="event-detail">หลายพื้นที่เริ่มลด แต่ชุมชนริมน้ำยังท่วมสูง</span><span class="event-dot" aria-hidden="true"></span></div>
+            <div class="event"><span class="event-date">28 ก.ย.</span><span class="event-detail">รายงานเหลือ 8 เขตที่ยังมีน้ำท่วม</span><span class="event-dot" aria-hidden="true"></span></div>
+          </div>
+        </div>
+
+        <div class="insight-grid">
+          <article class="insight-card">
+            <h2>พื้นที่เร่งด่วน</h2>
+            <p><strong>แฟลตคลองจั่น:</strong> ตั้งวอร์รูมและครัวสนามเพื่อประชาชนราว 20,000 คน</p>
+            <p><strong>เคหะร่มเกล้า:</strong> เร่งอพยพและลำเลียงอาหารด้วยรถสูงและเรือ</p>
+            <p><strong>คลองหลัก:</strong> คลองแสนแสบ คลองเปรมประชากร และคลองประเวศมีระดับสูง</p>
+          </article>
+          <article class="insight-card">
+            <h2>การช่วยเหลือ</h2>
+            <table class="table"><thead><tr><th scope="col">รายการ</th><th scope="col">รายงาน</th></tr></thead><tbody>
+              <tr><td>ศูนย์พักพิงที่เตรียม</td><td>233 แห่ง</td></tr>
+              <tr><td>ผู้ใช้ศูนย์พักพิง</td><td>ประมาณ 4,200–4,900 คน*</td></tr>
+              <tr><td>ผู้ต้องการอาหารส่งถึงพื้นที่</td><td>60,000–70,000 คน</td></tr>
+              <tr><td>สายด่วน 1669</td><td>มากกว่า 7,200 สาย/วัน</td></tr>
+            </tbody></table>
+            <small>*ตัวเลขต่างช่วงเวลาจาก Reuters และ The Guardian</small>
+          </article>
+        </div>
+        <article class="insight-card" style="margin-top:16px;background:#f4efbc;min-height:0">
+          <h2>ผลกระทบเศรษฐกิจ</h2>
+          <p>ม.หอการค้าไทยประเมินผลกระทบช่วง 25–29 ก.ย. กรณีฐานทั้งประเทศ <strong class="economic">12,283 ล้านบาท</strong> โดยกรุงเทพฯ คิดเป็น <strong class="economic">7,014 ล้านบาท หรือ 57%</strong> และยังไม่รวมความเสียหายต่อบ้าน รถ สินค้าคงคลัง และผลผลิตเกษตร</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="dashboard" class="view" aria-labelledby="dashboard-title">
+      <div class="shell">
+        <div class="view-intro"><h1 id="dashboard-title">ข้อมูลและกราฟ</h1><p>ตัวเลขอ้างอิงจากรายงานข่าวที่เผยแพร่ โดยระบุวันและแหล่งข้อมูลกำกับแต่ละส่วน</p></div>
+        <div class="data-grid">
+          <article class="data-card"><h2>ปริมาณฝนรายสถานีที่ยืนยันได้ — 25 ก.ย.</h2><div class="chart"><canvas id="rainChart" aria-label="ปริมาณฝน มีนบุรี 101.5 คลองสามวา 96.5 ลาดกระบัง 86.5 มิลลิเมตร" role="img"></canvas></div><p>สำนักการระบายน้ำ กทม.: มีนบุรี 101.5, คลองสามวา 96.5, ลาดกระบัง 86.5 มม.</p></article>
+          <article class="data-card"><h2>ผลกระทบเศรษฐกิจ (ล้านบาท)</h2><div class="chart"><canvas id="econChart" aria-label="กรุงเทพฯ 7,014 ภาคตะวันออก 2,976 ปริมณฑล 1,839 พื้นที่อื่น 454 ล้านบาท" role="img"></canvas></div><p>ม.หอการค้าไทย: กรณีฐาน 12,283 ล้านบาท</p></article>
+          <article class="data-card table-card"><h2>8 เขตที่ยังมีน้ำท่วมตามรายงาน 28 ก.ย.</h2><div class="table-scroll"><table class="table"><thead><tr><th scope="col">เขต</th><th scope="col">สถานะ</th><th scope="col">พื้นที่/จุดอ้างอิงจากข่าว</th></tr></thead><tbody id="activeTable"></tbody></table></div><p>หมายเหตุ: สีในแผนที่แสดง “มีรายงานยังท่วม” ไม่ใช่ความลึกน้ำแบบเรียลไทม์ เพราะแหล่งข่าวไม่ได้เปิดตัวเลขความลึกครบทุกเขต</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="mapview" class="view" aria-label="แผนที่สถานการณ์ 50 เขต">
+      <div class="map-shell">
+        <div id="map" class="map" aria-label="แผนที่ขอบเขต 50 เขตของกรุงเทพมหานคร"></div>
+        <aside class="map-panel">
+          <h2>แผนที่สถานการณ์ 50 เขต</h2>
+          <p>ขอบเขตเขต: Bangkok District GeoJSON · แผนที่ฐาน: OpenStreetMap</p>
+          <input id="search" class="search" type="search" placeholder="ค้นหาเขต..." aria-label="ค้นหาเขต">
+          <div class="legend"><span><i class="swatch" style="background:#eb5337"></i>ยังมีรายงานน้ำท่วม</span><span><i class="swatch" style="background:#81aeb2"></i>ไม่มีรายงานยืนยันล่าสุด</span></div>
+          <div id="districtList" class="districts"></div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="sources" class="view" aria-labelledby="sources-title">
+      <div class="shell">
+        <div class="view-intro"><h1 id="sources-title">แหล่งข่าวและข้อมูล</h1><p>เปิดแหล่งข้อมูลต้นทางเพื่อตรวจรายละเอียดและข้อมูลที่ใหม่กว่า ก่อนใช้ตัดสินใจเดินทาง</p></div>
+        <div class="sources-grid">
+          <a class="source-card" href="https://www.thairath.co.th/news/local/bangkok/2962336" target="_blank" rel="noopener noreferrer"><span>ไทยรัฐ · 27 ก.ย.</span><strong>สรุปพื้นที่น้ำท่วม</strong><span class="arrow-disc"><svg aria-hidden="true"><use href="#icon-arrow"/></svg></span></a>
+          <a class="source-card" href="https://thestandard.co/bangkok-flood-minburi-drainage/" target="_blank" rel="noopener noreferrer"><span>THE STANDARD · 25 ก.ย.</span><strong>สำนักการระบายน้ำและมีนบุรี</strong><span class="arrow-disc"><svg aria-hidden="true"><use href="#icon-arrow"/></svg></span></a>
+          <a class="source-card" href="https://www.hfocus.org/content/2026/09/39644" target="_blank" rel="noopener noreferrer"><span>Hfocus</span><strong>ประกาศพื้นที่ประสบสาธารณภัย 50 เขต</strong><span class="arrow-disc"><svg aria-hidden="true"><use href="#icon-arrow"/></svg></span></a>
+          <a class="source-card" href="https://www.reuters.com/business/environment/bangkok-floodwaters-recede-officials-race-drain-canals-2026-09-27/" target="_blank" rel="noopener noreferrer"><span>Reuters</span><strong>น้ำลดและศูนย์พักพิง</strong><span class="arrow-disc"><svg aria-hidden="true"><use href="#icon-arrow"/></svg></span></a>
+          <a class="source-card" href="https://www.thaipbs.or.th/news/content/558751" target="_blank" rel="noopener noreferrer"><span>Thai PBS</span><strong>ผลกระทบเศรษฐกิจ</strong><span class="arrow-disc"><svg aria-hidden="true"><use href="#icon-arrow"/></svg></span></a>
+          <a class="source-card" href="https://www.pptvhd36.com/news/สังคม/284283" target="_blank" rel="noopener noreferrer"><span>PPTV</span><strong>8 เขตที่ยังมีน้ำท่วม</strong><span class="arrow-disc"><svg aria-hidden="true"><use href="#icon-arrow"/></svg></span></a>
+        </div>
+        <div class="api-card"><h2>Map APIs และไลบรารี</h2><p><strong>Boundary:</strong> <a href="https://raw.githubusercontent.com/pcrete/gsvloader-demo/master/geojson/Bangkok-districts.geojson">Bangkok Districts GeoJSON</a></p><p><strong>Tile:</strong> OpenStreetMap Standard Tiles</p><p><strong>Library:</strong> Leaflet 1.9.4 + Chart.js 4.4.7 via jsDelivr</p><p>ไม่มี API key และไม่มี secret ฝังในไฟล์; โปรดปฏิบัติตาม OSM Tile Usage Policy</p></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner shell"><strong>BKK FLOOD</strong><p>ข้อมูลสถานการณ์เป็นภาพรวมตามข่าวที่เผยแพร่ ไม่ใช่เซนเซอร์ระดับน้ำแบบเรียลไทม์ · ควรตรวจสอบ <a href="https://weather.bangkok.go.th/">weather.bangkok.go.th</a> และ <a href="https://dds.bangkok.go.th/">dds.bangkok.go.th</a> ก่อนเดินทาง</p></div>
+  </footer>
+</div>
+<script src="app.js"></script>
+</body>
+</html>

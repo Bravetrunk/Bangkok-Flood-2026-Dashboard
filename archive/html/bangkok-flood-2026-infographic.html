@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>สถานการณ์น้ำท่วมกรุงเทพมหานคร 2569</title>
+<style>
+  :root {
+    --fg: var(--foreground, #1a1a2e);
+    --muted: var(--muted-foreground, #6b7280);
+    --accent: var(--accent, #dc2626);
+    --border: var(--border, #e5e7eb);
+    --card: var(--card, #ffffff);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, 'IBM Plex Sans Thai', 'Noto Sans Thai', 'Sarabun', system-ui, sans-serif;
+    color: var(--fg);
+    background: #f8fafc;
+    line-height: 1.5;
+  }
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+  /* Hero */
+  .hero {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 40%, #312e81 100%);
+    color: white;
+    padding: 48px 0 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -20%;
+    width: 140%; height: 200%;
+    background: radial-gradient(ellipse at 30% 20%, rgba(59,130,246,0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 80%, rgba(239,68,68,0.12) 0%, transparent 50%);
+  }
+  .hero .container { position: relative; z-index: 1; }
+  .hero-badge {
+    display: inline-block;
+    background: rgba(239,68,68,0.9);
+    padding: 6px 18px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-bottom: 16px;
+  }
+  .hero h1 {
+    font-size: 42px;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+  }
+  .hero h1 span { color: #f87171; }
+  .hero .date {
+    font-size: 16px;
+    color: #94a3b8;
+    font-weight: 500;
+  }
+  .hero .rain-icon {
+    font-size: 52px;
+    margin-bottom: 12px;
+    animation: rain 2s ease-in-out infinite;
+  }
+  @keyframes rain {
+    0%,100% { transform: translateY(0); opacity: 1; }
+    50% { transform: translateY(6px); opacity: 0.7; }
+  }
+
+  /* Stats Banner */
+  .stats-banner {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 24px 0;
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    text-align: center;
+  }
+  .stat-item {
+    padding: 8px 12px;
+  }
+  .stat-number {
+    font-size: 32px;
+    font-weight: 800;
+    color: #dc2626;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-number.blue { color: #2563eb; }
+  .stat-number.amber { color: #d97706; }
+  .stat-number.purple { color: #7c3aed; }
+  .stat-label {
+    font-size: 13px;
+    color: #6b7280;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  /* Section */
+  .section {
+    padding: 36px 0;
+  }
+  .section-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title .icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+
+  /* Timeline */
+  .timeline {
+    position: relative;
+    padding-left: 28px;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px; top: 8px; bottom: 8px;
+    width: 3px;
+    background: linear-gradient(to bottom, #dc2626, #fbbf24, #22c55e);
+    border-radius: 2px;
+  }
+  .tl-item {
+    position: relative;
+    margin-bottom: 20px;
+    padding-left: 20px;
+  }
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: -24px; top: 6px;
+    width: 13px; height: 13px;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 0 0 2px #dc2626;
+  }
+  .tl-item:nth-child(3)::before { box-shadow: 0 0 0 2px #f59e0b; }
+  .tl-item:nth-child(4)::before { box-shadow: 0 0 0 2px #22c55e; }
+  .tl-date {
+    font-size: 13px;
+    font-weight: 700;
+    color: #dc2626;
+    margin-bottom: 2px;
+  }
+  .tl-text { font-size: 14px; color: #374151; }
+
+  /* Cards */
+  .cards-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .cards-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .card h4 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card p, .card li {
+    font-size: 13.5px;
+    color: #4b5563;
+    line-height: 1.6;
+  }
+  .card ul { list-style: none; padding: 0; }
+  .card ul li { padding: 3px 0; }
+  .card ul li::before { content: '▸ '; color: #dc2626; font-weight: bold; }
+
+  /* District Grid */
+  .district-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+  .district-tag {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    color: #991b1b;
+  }
+  .district-tag.critical {
+    background: #dc2626;
+    color: white;
+    border-color: #dc2626;
+  }
+
+  /* Damage bar */
+  .damage-bar-wrap { margin: 8px 0; }
+  .damage-bar-label {
+    display: flex; justify-content: space-between;
+    font-size: 13px; font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .damage-bar {
+    height: 10px;
+    background: #e5e7eb;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  .damage-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #f87171, #dc2626);
+    border-radius: 5px;
+  }
+
+  /* Footer */
+  .footer {
+    background: #1e293b;
+    color: #94a3b8;
+    padding: 20px 0;
+    font-size: 12px;
+    text-align: center;
+  }
+  .footer .sources {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 8px;
+  }
+  .footer .source {
+    color: #64748b;
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  /* Warning callout */
+  .callout {
+    background: #fffbeb;
+    border: 1px solid #fcd34d;
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .callout .icon { font-size: 24px; flex-shrink: 0; }
+  .callout h4 { font-size: 15px; font-weight: 700; color: #92400e; margin-bottom: 4px; }
+  .callout p { font-size: 13px; color: #78350f; }
+
+  @media (max-width: 768px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .cards-2, .cards-3 { grid-template-columns: 1fr; }
+    .district-grid { grid-template-columns: repeat(2, 1fr); }
+    .hero h1 { font-size: 28px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="container">
+    <div class="rain-icon">🌧️</div>
+    <div class="hero-badge">⚠️ ภัยพิบัติ · Disaster Zone</div>
+    <h1>สถานการณ์น้ำท่วม<br><span>กรุงเทพมหานคร</span> 2569</h1>
+    <p class="date">อัปเดตล่าสุด: 28 กันยายน 2569 · แหล่งข่าว: ไทยรัฐ, กรุงเทพธุรกิจ, Hfocus, Reuters, ThaiPBS, BBC ไทย, PPTV</p>
+  </div>
+</header>
+
+<!-- KEY STATS -->
+<section class="stats-banner">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-number">330<span style="font-size:18px"> มม.</span></div>
+        <div class="stat-label">ปริมาณฝนสะสม<br>สูงสุดใน 4 วัน</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number blue">50<span style="font-size:18px"> เขต</span></div>
+        <div class="stat-label">ประกาศพื้นที่<br>ประสบสาธารณภัย</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number amber">~700K<span style="font-size:18px"> คน</span></div>
+        <div class="stat-label">ประชาชนใน กทม.<br>ได้รับผลกระทบ</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number purple">12.3K<span style="font-size:18px"> ลบ.</span></div>
+        <div class="stat-label">ความเสียหายทางเศรษฐกิจ<br>(5 วัน, 25-29 ก.ย.)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TIMELINE -->
+<section class="section">
+  <div class="container">
+    <div class="section-title">
+      <span class="icon" style="background:#fef2f2;">📅</span>
+      ลำดับเหตุการณ์
+    </div>
+    <div class="cards-2">
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-date">23-24 ก.ย. 69</div>
+          <div class="tl-text">ฝนเริ่มตกหนักต่อเนื่อง ความกดอากาศต่ำปกคลุม กทม. ปริมาณฝนสะสมเริ่มสูงผิดปกติ</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-date">25 ก.ย. 69</div>
+          <div class="tl-text">น้ำท่วมขังถนนสายหลัก 14 จุด มีนบุรีฝนสูงสุด 101.5 มม. ประกาศ 3 เขตแรกเป็นพื้นที่ภัยพิบัติ: หนองจอก, สวนหลวง, คันนายาว</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-date">26 ก.ย. 69</div>
+          <div class="tl-text"><strong>ประกาศ 50 เขต</strong> เป็นพื้นที่ประสบสาธารณภัยทั่วกรุงเทพฯ ฝนสะสมทะลุ 300 มม. ภายใน 48 ชม. ถนนวิภาวดีรังสิตน้ำท่วมสูง 1 เมตร</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-date">27-28 ก.ย. 69</div>
+          <div class="tl-text">ฝนเริ่มเบาลง หลายพื้นที่ระดับน้ำลด แต่ 8 เขตยังวิกฤต เร่งระบายน้ำ-ช่วยเหลือผู้ประสบภัย คาดต้องใช้เวลา 2-3 วันในการระบาย</div>
+        </div>
+      </div>
+      <div class="card" style="background:#f8fafc;">
+        <h4>⛈️ เปรียบเทียบกับอดีต</h4>
+        <p>ปริมาณฝน 300-330 มม. ใน 48-72 ชม. เทียบเท่าปริมาณฝนที่ อ.หาดใหญ่ จ.สงขลา (320 มม.) ประชาชนบางพื้นที่ระบุว่า <em>"ระดับน้ำสูงกว่ามหาอุทกภัยปี 2554"</em></p>
+        <div style="margin-top:12px; padding:10px; background:#fef2f2; border-radius:8px;">
+          <p style="font-size:12px; color:#991b1b;"><strong>⚠️ เสียชีวิต:</strong> อย่างน้อย 9 รายทั่วประเทศ (สระแก้ว 5, จันทบุรี 2, สระบุรี 1, กทม. 1 — ถูกไฟฟ้าดูดที่แฟลตคลองจั่น)</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AFFECTED AREAS -->
+<section class="section" style="background:white; border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
+  <div class="container">
+    <div class="section-title">
+      <span class="icon" style="background:#fee2e2;">📍</span>
+      พื้นที่ประสบภัยหนัก — 8 เขตวิกฤต (28 ก.ย. 69)
+    </div>
+    <div class="district-grid">
+      <div class="district-tag critical">🔴 ลาดกระบัง</div>
+      <div class="district-tag critical">🔴 บางกะปิ</div>
+      <div class="district-tag critical">🔴 มีนบุรี</div>
+      <div class="district-tag critical">🔴 สะพานสูง</div>
+      <div class="district-tag critical">🔴 สวนหลวง</div>
+      <div class="district-tag critical">🔴 บึงกุ่ม</div>
+      <div class="district-tag critical">🔴 คลองสามวา</div>
+      <div class="district-tag critical">🔴 สายไหม</div>
+    </div>
+    <p style="font-size:13px; color:#6b7280; margin-top:12px; text-align:center;">พื้นที่อื่นอีก 34 เขตที่น้ำเริ่มลด — ยังต้องเฝ้าระวัง</p>
+
+    <div class="cards-3" style="margin-top:20px;">
+      <div class="card">
+        <h4>🏚️ แฟลตคลองจั่น (บางกะปิ)</h4>
+        <p>น้ำท่วมสูงระดับเอว-หน้าอก ประชาชน ~20,000 คนต้องการความช่วยเหลือ ไฟฟ้าถูกตัด อาหารขาดแคลน ผู้ป่วยติดเตียงอพยพลำบาก</p>
+      </div>
+      <div class="card">
+        <h4>🏢 เคหะร่มเกล้า (ลาดกระบัง)</h4>
+        <p>น้ำท่วมขังสูง รถเล็กผ่านไม่ได้ อพยพประชาชน 1,500 คนไปศูนย์พักพิง ถนนเคหะร่มเกล้าถูกตัดขาด</p>
+      </div>
+      <div class="card">
+        <h4>🛣️ ถนนเพชรบุรี / รามคำแหง</h4>
+        <p>น้ำท่วมสูง 40-60 ซม. รถจอดเสีย ~100 คันบนถนนเพชรบุรี รามคำแหง 24-ซอย 101/1 ยังมีน้ำท่วมขัง</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RELIEF & AID -->
+<section class="section">
+  <div class="container">
+    <div class="section-title">
+      <span class="icon" style="background:#ecfdf5;">🆘</span>
+      ความช่วยเหลือ & การรับมือ
+    </div>
+    <div class="cards-2">
+      <div class="card">
+        <h4>📦 การแจกจ่ายอาหาร</h4>
+        <ul>
+          <li>ประชาชนตกค้างในพื้นที่น้ำท่วม: <strong>~80,000 คน</strong></li>
+          <li>ต้องการอาหารกล่อง: <strong>240,000 กล่อง/วัน</strong></li>
+          <li>ผู้ต้องการส่งอาหารถึงบ้าน: <strong>60,000-70,000 คน</strong></li>
+          <li>รถครัวสนามเคลื่อนที่ผลิตได้ <strong>10,000 กล่อง/วัน/จุด</strong></li>
+          <li>ตั้งวอร์รูมแฟลตคลองจั่น + เคหะร่มเกล้า</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>🏥 การแพทย์ & อพยพ</h4>
+        <ul>
+          <li>ศูนย์พักพิงชั่วคราว: <strong>233 แห่ง</strong></li>
+          <li>ผู้อพยพเข้าศูนย์ฯ: <strong>~4,900 คน</strong></li>
+          <li>สายด่วน 1669 พุ่ง <strong>7,200 สาย/วัน</strong> (ปกติ 3,000)</li>
+          <li>ทีมแพทย์เฉพาะกิจลงพื้นที่ผู้ป่วยติดเตียง</li>
+          <li>รร.กทม. ปิดเรียนวันจันทร์ที่ 29 ก.ย.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="cards-2" style="margin-top:16px;">
+      <div class="card">
+        <h4>⚡ 6 มาตรการเร่งด่วน (มท.)</h4>
+        <ul>
+          <li>การไฟฟ้านครหลวงเร่งจ่ายไฟ</li>
+          <li>รถสุขาเคลื่อนที่เข้าชุมชน</li>
+          <li>ครัวสนามผลิตอาหาร 10,000 กล่อง/จุด</li>
+          <li>ระดมเรือส่งอาหารครบ 3 มื้อ/วัน</li>
+          <li>เร่งเยียวยาตามระเบียบ</li>
+          <li>ตั้ง Project Manager ดูแลคลองจั่น-ร่มเกล้า-ลาดกระบัง</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>🏗️ การระบายน้ำ</h4>
+        <ul>
+          <li>น้ำในคลองยังสูง — เร่งสูบออกสู่แม่น้ำเจ้าพระยา</li>
+          <li>น้ำเหนือจากเจ้าพระยาระบาย ~1,900 ลบ.ม./วินาที</li>
+          <li>อ่างเก็บน้ำเหนือยังรับน้ำได้อีกมาก</li>
+          <li>คาดใช้เวลา <strong>2-3 วัน</strong> ในการระบาย (หากฝนไม่ตกเพิ่ม)</li>
+          <li>⚠️ <strong>29 ก.ย. - 4 ต.ค.</strong> เฝ้าระวังน้ำทะเลหนุนสูง</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ECONOMIC IMPACT -->
+<section class="section" style="background:white; border-top:1px solid var(--border);">
+  <div class="container">
+    <div class="section-title">
+      <span class="icon" style="background:#fef3c7;">💰</span>
+      ผลกระทบทางเศรษฐกิจ (ประเมินโดย ม.หอการค้าไทย)
+    </div>
+    <div class="cards-3">
+      <div class="card">
+        <h4>💸 ความเสียหายรวม</h4>
+        <div class="stat-number amber" style="font-size:28px; margin:8px 0;">12,283<span style="font-size:16px"> ล้านบาท</span></div>
+        <p style="font-size:12px; color:#6b7280;">0.066% ของ GDP ทั้งปี · 0.26% ของ GDP Q3/2569</p>
+        <div style="margin-top:8px; font-size:12px; color:#9ca3af;">*ยังไม่รวมความเสียหายต่อทรัพย์สินและผลผลิตเกษตร</div>
+      </div>
+      <div class="card">
+        <h4>🏙️ แบ่งตามพื้นที่</h4>
+        <div class="damage-bar-wrap">
+          <div class="damage-bar-label"><span>กรุงเทพฯ</span><span>7,014 ลบ. (57%)</span></div>
+          <div class="damage-bar"><div class="damage-bar-fill" style="width:57%"></div></div>
+        </div>
+        <div class="damage-bar-wrap">
+          <div class="damage-bar-label"><span>ภาคตะวันออก</span><span>2,976 ลบ. (24%)</span></div>
+          <div class="damage-bar"><div class="damage-bar-fill" style="width:24%; background:linear-gradient(90deg,#fbbf24,#f59e0b);"></div></div>
+        </div>
+        <div class="damage-bar-wrap">
+          <div class="damage-bar-label"><span>ปริมณฑล</span><span>1,839 ลบ. (15%)</span></div>
+          <div class="damage-bar"><div class="damage-bar-fill" style="width:15%; background:linear-gradient(90deg,#a78bfa,#7c3aed);"></div></div>
+        </div>
+        <div class="damage-bar-wrap">
+          <div class="damage-bar-label"><span>ภาคอื่นๆ</span><span>454 ลบ. (4%)</span></div>
+          <div class="damage-bar"><div class="damage-bar-fill" style="width:4%; background:#9ca3af;"></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <h4>📉 สถานการณ์</h4>
+        <div style="margin-top:8px;">
+          <p style="font-size:13px; line-height:1.7;">
+            <strong>กรณีฐาน:</strong> คลี่คลายใน 1 สัปดาห์ → เสียหาย <strong>12,283 ลบ.</strong><br>
+            <strong>กรณีดี:</strong> คลี่คลายใน 2-3 วัน → <strong>5,896 ลบ.</strong><br>
+            <strong>กรณีเลวร้าย:</strong> ยืดเยื้อ 8-9 วัน → <strong>20,635 ลบ.</strong>
+          </p>
+          <p style="font-size:12px; color:#6b7280; margin-top:8px;">
+            กระทบมากสุด: ภาคค้าปลีก บริการ ท่องเที่ยว การเดินทางของแรงงาน
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NATIONAL + FORECAST -->
+<section class="section">
+  <div class="container">
+    <div class="cards-2">
+      <div class="card">
+        <h4>🇹🇭 สถานการณ์ทั่วประเทศ</h4>
+        <ul>
+          <li><strong>27 จังหวัด + กทม.</strong> ประสบอุทกภัย</li>
+          <li>151 อำเภอ · 792 ตำบล · 4,087 หมู่บ้าน</li>
+          <li>ประชาชนได้รับผลกระทบ: <strong>1,793,887 คน</strong></li>
+          <li>ครัวเรือน: <strong>576,449 ครัวเรือน</strong></li>
+          <li>11 จังหวัดระดับน้ำยังเพิ่มสูง</li>
+          <li>⚠️ จับตา: กาญจนบุรี ฝนสะสม 200 มม./วัน</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>🔮 พยากรณ์ & คำแนะนำ</h4>
+        <ul>
+          <li>ฝนเริ่มเบาลง 29 ก.ย. — กลุ่มฝนเคลื่อนไปตะวันตก</li>
+          <li>ยังมีฝนฟ้าคะนองบางพื้นที่</li>
+          <li>น้ำทะเลหนุนสูง <strong>29 ก.ย. – 4 ต.ค.</strong> → เสี่ยงพื้นที่นอกคันกั้นน้ำ</li>
+          <li>หลีกเลี่ยงเส้นทางน้ำท่วมขัง</li>
+          <li>แจ้งเหตุน้ำท่วม: <strong>☎️ 1555</strong> (ตลอด 24 ชม.)</li>
+          <li>เหตุฉุกเฉินทางการแพทย์: <strong>☎️ 1669</strong></li>
+          <li>เช็กระดับน้ำ real-time: <strong>dds.bangkok.go.th</strong></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:20px;">
+      <span class="icon">⚠️</span>
+      <div>
+        <h4>คำเตือนจากรัฐบาล</h4>
+        <p>อย่าตื่นตระหนกกักตุนสินค้า — รัฐบาลยืนยันสินค้าอุปโภคบริโภคไม่ขาดแคลน การฉวยโอกาสขึ้นราคาเป็นความผิดทางอาญา ครม. เตรียมเคาะมาตรการเยียวยา 29 ก.ย. นี้</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <p>รวบรวมข้อมูลจากแหล่งข่าวที่เชื่อถือได้ ณ วันที่ 28 กันยายน 2569</p>
+    <div class="sources">
+      <span class="source">ไทยรัฐออนไลน์</span>
+      <span class="source">กรุงเทพธุรกิจ</span>
+      <span class="source">Hfocus</span>
+      <span class="source">Thai PBS</span>
+      <span class="source">PPTV HD 36</span>
+      <span class="source">BBC ไทย</span>
+      <span class="source">Reuters</span>
+      <span class="source">The Guardian</span>
+      <span class="source">Al Jazeera</span>
+      <span class="source">ม.หอการค้าไทย</span>
+      <span class="source">ปภ. / กทม.</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

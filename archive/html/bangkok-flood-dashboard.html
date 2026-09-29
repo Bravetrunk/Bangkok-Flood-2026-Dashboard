@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bangkok Flood 2026 — Live Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+:root {
+  --fg: var(--foreground, #f1f5f9);
+  --muted: var(--muted-foreground, #94a3b8);
+  --accent: var(--accent, #ef4444);
+  --border: var(--border, #1e293b);
+  --card: var(--card, #0f172a);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: -apple-system, 'IBM Plex Sans Thai', 'Noto Sans Thai', 'Sarabun', system-ui, sans-serif;
+  background: #020617; color: var(--fg); line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* HEADER */
+.header {
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #1e293b 100%);
+  border-bottom: 1px solid #1e293b;
+  padding: 20px 0;
+  position: sticky; top:0; z-index:100;
+  backdrop-filter: blur(12px);
+}
+.header-inner {
+  max-width: 1400px; margin:0 auto; padding:0 24px;
+  display:flex; align-items:center; justify-content:space-between;
+  flex-wrap:wrap; gap:12px;
+}
+.header h1 { font-size:22px; font-weight:800; letter-spacing:-0.3px; }
+.header h1 span { color: #f87171; }
+.live-dot {
+  display:inline-block; width:10px; height:10px; border-radius:50%;
+  background:#22c55e; margin-right:6px;
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(34,197,94,0.4)} 50%{opacity:.6;box-shadow:0 0 0 8px rgba(34,197,94,0)} }
+.header-badges { display:flex; gap:8px; flex-wrap:wrap; }
+.badge {
+  padding:5px 14px; border-radius:20px; font-size:12px; font-weight:700;
+  white-space:nowrap;
+}
+.badge-red { background:#7f1d1d; color:#fca5a5; }
+.badge-amber { background:#78350f; color:#fcd34d; }
+.badge-blue { background:#1e3a5f; color:#93c5fd; }
+
+/* GRID */
+.dashboard {
+  max-width: 1400px; margin:0 auto; padding:24px;
+  display:grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap:16px;
+}
+.col-12 { grid-column: span 12; }
+.col-8 { grid-column: span 8; }
+.col-6 { grid-column: span 6; }
+.col-4 { grid-column: span 4; }
+.col-3 { grid-column: span 3; }
+
+@media (max-width: 1024px) { .col-8,.col-6 { grid-column: span 12; } .col-4 { grid-column: span 6; } .col-3 { grid-column: span 6; } }
+@media (max-width: 640px) { .col-4,.col-3 { grid-column: span 12; } }
+
+/* CARDS */
+.card {
+  background: #0f172a; border:1px solid #1e293b; border-radius:16px;
+  padding:20px; position:relative; overflow:hidden;
+}
+.card-header {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:16px;
+}
+.card-title { font-size:15px; font-weight:700; display:flex; align-items:center; gap:8px; }
+.card-title .dot { width:8px; height:8px; border-radius:50%; }
+.dot-red { background:#ef4444; }
+.dot-amber { background:#f59e0b; }
+.dot-green { background:#22c55e; }
+.dot-blue { background:#3b82f6; }
+.card-badge {
+  font-size:11px; padding:3px 10px; border-radius:12px;
+  font-weight:600; background:#1e293b; color:#94a3b8;
+}
+.chart-wrap { position:relative; width:100%; }
+.chart-wrap canvas { width:100% !important; }
+
+/* STAT CARDS */
+.stat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+@media (max-width:768px) { .stat-grid { grid-template-columns:repeat(2,1fr); } }
+.stat-card {
+  background:#0f172a; border:1px solid #1e293b; border-radius:14px;
+  padding:18px; text-align:center;
+}
+.stat-value { font-size:32px; font-weight:800; line-height:1; margin-bottom:4px; }
+.stat-label { font-size:12px; color:#94a3b8; font-weight:500; }
+.stat-sub { font-size:11px; color:#64748b; margin-top:4px; }
+.red { color:#f87171; }
+.amber { color:#fbbf24; }
+.blue { color:#60a5fa; }
+.purple { color:#a78bfa; }
+.green { color:#4ade80; }
+
+/* MAP */
+#map { height:420px; border-radius:12px; z-index:1; }
+.leaflet-container { background:#0f172a !important; }
+.district-legend {
+  display:flex; flex-wrap:wrap; gap:16px; margin-top:10px;
+  font-size:12px; color:#94a3b8;
+}
+.legend-item { display:flex; align-items:center; gap:6px; }
+.legend-dot { width:10px; height:10px; border-radius:50%; }
+
+/* TABLE */
+.table-wrap { overflow-x:auto; }
+table { width:100%; border-collapse:collapse; font-size:13px; }
+th { text-align:left; padding:10px 12px; border-bottom:2px solid #1e293b; color:#94a3b8; font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:0.5px; }
+td { padding:10px 12px; border-bottom:1px solid #0f172a; }
+tr:hover td { background:rgba(30,41,59,0.5); }
+.level-bar {
+  height:6px; background:#1e293b; border-radius:3px;
+  overflow:hidden; min-width:60px;
+}
+.level-fill { height:100%; border-radius:3px; }
+.level-critical { background:linear-gradient(90deg,#dc2626,#ef4444); }
+.level-high { background:linear-gradient(90deg,#ea580c,#f97316); }
+.level-moderate { background:linear-gradient(90deg,#ca8a04,#eab308); }
+.level-low { background:linear-gradient(90deg,#16a34a,#22c55e); }
+
+/* TIMELINE LIST */
+.tl-list { list-style:none; }
+.tl-list li {
+  padding:10px 0; border-bottom:1px solid #1e293b;
+  display:flex; gap:12px; align-items:flex-start;
+  font-size:13px;
+}
+.tl-list li:last-child { border-bottom:none; }
+.tl-date-badge {
+  background:#1e293b; color:#94a3b8; padding:2px 10px;
+  border-radius:6px; font-size:11px; font-weight:700;
+  white-space:nowrap; min-width:80px; text-align:center;
+}
+
+/* FOOTER */
+.footer {
+  text-align:center; padding:20px; color:#475569; font-size:12px;
+  border-top:1px solid #1e293b; margin-top:8px;
+}
+
+/* TOOLTIP */
+.info-tip { font-size:11px; color:#64748b; margin-top:6px; font-style:italic; }
+
+/* ALERT BANNER */
+.alert-banner {
+  background:linear-gradient(135deg,#7f1d1d,#991b1b);
+  border:1px solid #dc2626; border-radius:12px;
+  padding:14px 20px; display:flex; align-items:center; gap:12px;
+  font-size:13px; font-weight:600;
+}
+.alert-banner .icon { font-size:22px; flex-shrink:0; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-inner">
+    <div>
+      <h1><span class="live-dot"></span>น้ำท่วมกรุงเทพฯ <span>2569</span> — Dashboard</h1>
+      <div style="font-size:12px;color:#94a3b8;margin-top:2px;">อัปเดตล่าสุด: 28 กันยายน 2569 · 22:00 น. | แหล่งข้อมูล: กทม., ปภ., ไทยรัฐ, Reuters, ม.หอการค้าไทย</div>
+    </div>
+    <div class="header-badges">
+      <span class="badge badge-red">⚠️ 50 เขต พื้นที่ประสบสาธารณภัย</span>
+      <span class="badge badge-amber">🆘 8 เขตยังวิกฤต</span>
+      <span class="badge badge-blue">🌧️ ฝนเริ่มเบาลง 29 ก.ย.</span>
+    </div>
+  </div>
+</header>
+
+<!-- DASHBOARD -->
+<div class="dashboard">
+
+  <!-- STATS ROW -->
+  <div class="col-12">
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-value red">330<span style="font-size:16px"> มม.</span></div>
+        <div class="stat-label">ฝนสะสมสูงสุด 4 วัน</div>
+        <div class="stat-sub">เทียบเท่าพายุหาดใหญ่</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value amber">~700K<span style="font-size:16px"> คน</span></div>
+        <div class="stat-label">ประชาชนใน กทม. ได้รับผลกระทบ</div>
+        <div class="stat-sub">~300,000 ครัวเรือน</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value blue">12,283<span style="font-size:16px"> ลบ.</span></div>
+        <div class="stat-label">ความเสียหายทางเศรษฐกิจ</div>
+        <div class="stat-sub">0.066% ของ GDP · ม.หอการค้าไทย</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value purple">1.79<span style="font-size:16px"> ล้านคน</span></div>
+        <div class="stat-label">ผู้ได้รับผลกระทบทั่วประเทศ</div>
+        <div class="stat-sub">27 จังหวัด · 576,449 ครัวเรือน</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAP -->
+  <div class="col-8">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><span class="dot dot-red"></span>แผนที่พื้นที่ประสบภัย — กรุงเทพมหานคร</div>
+        <span class="card-badge">🖱️ คลิกดูรายละเอียดเขต</span>
+      </div>
+      <div id="map"></div>
+      <div class="district-legend">
+        <span class="legend-item"><span class="legend-dot" style="background:#dc2626;"></span> วิกฤต (8 เขต)</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#f97316;"></span> น้ำท่วมสูง (12 เขต)</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#eab308;"></span> น้ำท่วมปานกลาง (18 เขต)</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#22c55e;"></span> น้ำลด/เฝ้าระวัง (12 เขต)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="col-4">
+    <div class="card" style="height:100%;">
+      <div class="card-header">
+        <div class="card-title"><span class="dot dot-amber"></span>ลำดับเหตุการณ์</div>
+      </div>
+      <ul class="tl-list">
+        <li>
+          <span class="tl-date-badge">23-24 ก.ย.</span>
+          <span>ฝนตกหนักต่อเนื่อง ความกดอากาศต่ำปกคลุม กทม. ฝนสะสมเริ่มผิดปกติ</span>
+        </li>
+        <li>
+          <span class="tl-date-badge">25 ก.ย.</span>
+          <span>น้ำท่วม 14 จุดบนถนนสายหลัก มีนบุรีฝน 101.5 มม. ประกาศ 3 เขตภัยพิบัติ</span>
+        </li>
+        <li>
+          <span class="tl-date-badge" style="background:#7f1d1d;color:#fca5a5;">26 ก.ย.</span>
+          <span><strong>ประกาศ 50 เขต</strong> พื้นที่ประสบสาธารณภัย ฝน 300 มม.ใน 48 ชม.</span>
+        </li>
+        <li>
+          <span class="tl-date-badge" style="background:#14532d;color:#86efac;">27-28 ก.ย.</span>
+          <span>ฝนเริ่มเบาลง น้ำลดหลายจุด แต่ 8 เขตยังวิกฤต เร่งระบายน้ำ 2-3 วัน</span>
+        </li>
+        <li>
+          <span class="tl-date-badge">29 ก.ย. →</span>
+          <span>⚠️ น้ำทะเลหนุนสูง 29 ก.ย.-4 ต.ค. — ครม.เคาะมาตรการเยียวยา</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- RAINFALL CHART -->
+  <div class="col-6">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><span class="dot dot-blue"></span>ปริมาณฝนสะสมรายเขตสูงสุด (มม.) — 23-27 ก.ย. 69</div>
+      </div>
+      <div class="chart-wrap"><canvas id="rainChart"></canvas></div>
+      <div class="info-tip">ที่มา: ศูนย์ควบคุมระบบป้องกันน้ำท่วม กทม. · สำนักการระบายน้ำ</div>
+    </div>
+  </div>
+
+  <!-- ECONOMIC DAMAGE CHART -->
+  <div class="col-6">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><span class="dot dot-amber"></span>ความเสียหายทางเศรษฐกิจแบ่งตามพื้นที่ (ล้านบาท)</div>
+      </div>
+      <div class="chart-wrap"><canvas id="damageChart"></canvas></div>
+      <div class="info-tip">ที่มา: ศูนย์พยากรณ์เศรษฐกิจและธุรกิจ ม.หอการค้าไทย (28 ก.ย. 69) · *ยังไม่รวมความเสียหายต่อทรัพย์สิน</div>
+    </div>
+  </div>
+
+  <!-- AFFECTED DISTRICTS TABLE -->
+  <div class="col-6">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><span class="dot dot-red"></span>8 เขตวิกฤต — ระดับน้ำ & สถานะ</div>
+        <span class="card-badge">🔄 อัปเดต 28 ก.ย. 18:00 น.</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>เขต</th><th>ระดับน้ำ</th><th>ความรุนแรง</th><th>ครัวเรือนกระทบ</th><th>จุดสำคัญ</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>🔴 ลาดกระบัง</strong></td>
+              <td>50-80 ซม.</td>
+              <td><div class="level-bar"><div class="level-fill level-critical" style="width:95%"></div></div></td>
+              <td>~15,000</td>
+              <td>เคหะร่มเกล้า · ถ.ลาดกระบัง</td>
+            </tr>
+            <tr>
+              <td><strong>🔴 บางกะปิ</strong></td>
+              <td>80-110 ซม.</td>
+              <td><div class="level-bar"><div class="level-fill level-critical" style="width:100%"></div></div></td>
+              <td>~25,000</td>
+              <td>แฟลตคลองจั่น · รามคำแหง</td>
+            </tr>
+            <tr>
+              <td><strong>🔴 มีนบุรี</strong></td>
+              <td>40-60 ซม.</td>
+              <td><div class="level-bar"><div class="level-fill level-high" style="width:75%"></div></div></td>
+              <td>~8,000</td>
+              <td>ถ.สุวินทวงศ์ · หทัยราษฎร์</td>
+            </tr>
+            <tr>
+              <td><strong>🔴 สะพานสูง</strong></td>
+              <td>40-70 ซม.</td>
+              <td><div class="level-bar"><div class="level-fill level-high" style="width:70%"></div></div></td>
+              <td>~6,000</td>
+              <td>เคหะรามอินทรา</td>
+            </tr>
+            <tr>
+              <td><strong>🔴 สวนหลวง</strong></td>
+              <td>30-50 ซม.</td>
+              <td><div class="level-bar"><div class="level-fill level-high" style="width:60%"></div></div></td>
+              <td>~5,000</td>
+              <td>คลองประเวศ · อ่อนนุช</td>
+            </tr>
+            <tr>
+              <td><strong>🔴 บึงกุ่ม</strong></td>
+              <td>30-50 ซม.</td>
+              <td><div class="level-bar"><div class="level-fill level-high" style="width:60%"></div></div></td>
+              <td>~5,000</td>
+              <td>นวมินทร์ · เสรีไทย</td>
+            </tr>
+            <tr>
+              <td><strong>🔴 คลองสามวา</strong></td>
+              <td>25-45 ซม.</td>
+              <td><div class="level-bar"><div class="level-fill level-moderate" style="width:50%"></div></div></td>
+              <td>~4,000</td>
+              <td>ถ.หทัยราษฎร์ · นิมิตใหม่</td>
+            </tr>
+            <tr>
+              <td><strong>🔴 สายไหม</strong></td>
+              <td>20-40 ซม.</td>
+              <td><div class="level-bar"><div class="level-fill level-moderate" style="width:45%"></div></div></td>
+              <td>~3,000</td>
+              <td>ถ.พหลโยธิน · วัชรพล</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- RELIEF STATS -->
+  <div class="col-6">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><span class="dot dot-green"></span>ปฏิบัติการช่วยเหลือ — ข้อมูล 28 ก.ย. 69</div>
+      </div>
+      <div class="chart-wrap"><canvas id="reliefChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ALERT + NATIONAL -->
+  <div class="col-12">
+    <div class="alert-banner">
+      <span class="icon">⚠️</span>
+      <div>
+        <strong>คำเตือน:</strong> 29 ก.ย. – 4 ต.ค. น้ำทะเลหนุนสูง เสี่ยงพื้นที่นอกคันกั้นน้ำฝั่งธนบุรี (บางพลัด, ทวีวัฒนา, บางกอกน้อย) · หลีกเลี่ยงการเดินทางที่ไม่จำเป็น · แจ้งเหตุน้ำท่วม ☎️ 1555 · ฉุกเฉินการแพทย์ ☎️ 1669
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer class="footer">
+  <p>Bangkok Flood 2026 Dashboard · รวบรวมข้อมูลจาก: ไทยรัฐ, กรุงเทพธุรกิจ, Hfocus, Thai PBS, PPTV HD36, BBC ไทย, Reuters, The Guardian, Al Jazeera, ม.หอการค้าไทย, ปภ., กทม. · Last updated: 28 กันยายน 2569</p>
+</footer>
+
+<script>
+// ===== CHART.JS GLOBAL DEFAULTS =====
+Chart.defaults.color = '#94a3b8';
+Chart.defaults.borderColor = '#1e293b';
+Chart.defaults.font.family = "-apple-system, 'IBM Plex Sans Thai', 'Noto Sans Thai', 'Sarabun', system-ui, sans-serif";
+Chart.defaults.font.size = 12;
+
+// ===== RAINFALL CHART =====
+new Chart(document.getElementById('rainChart'), {
+  type: 'bar',
+  data: {
+    labels: ['มีนบุรี', 'คลองสามวา', 'ลาดกระบัง', 'บางกะปิ', 'สวนหลวง', 'บึงกุ่ม', 'สะพานสูง', 'สายไหม', 'จตุจักร', 'หลักสี่'],
+    datasets: [{
+      label: 'ฝนสะสม (มม.)',
+      data: [101.5, 96.5, 86.5, 78.0, 72.0, 68.5, 65.0, 58.0, 52.5, 48.0],
+      backgroundColor: [
+        'rgba(239,68,68,0.8)','rgba(239,68,68,0.7)','rgba(249,115,22,0.7)',
+        'rgba(249,115,22,0.65)','rgba(234,179,8,0.6)','rgba(234,179,8,0.55)',
+        'rgba(234,179,8,0.5)','rgba(59,130,246,0.5)','rgba(59,130,246,0.45)','rgba(59,130,246,0.4)'
+      ],
+      borderColor: '#1e293b',
+      borderWidth: 1,
+      borderRadius: 6,
+      barThickness: 28
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: {
+        beginAtZero: true,
+        max: 120,
+        grid: { color: '#1e293b' },
+        title: { display: true, text: 'มิลลิเมตร', color: '#64748b' }
+      },
+      x: { grid: { display: false } }
+    }
+  }
+});
+document.getElementById('rainChart').parentElement.style.height = '280px';
+
+// ===== ECONOMIC DAMAGE CHART =====
+new Chart(document.getElementById('damageChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['กรุงเทพฯ', 'ภาคตะวันออก', 'ปริมณฑล', 'ภาคอื่นๆ'],
+    datasets: [{
+      data: [7014, 2976, 1839, 454],
+      backgroundColor: ['#ef4444','#f97316','#eab308','#64748b'],
+      borderColor: '#0f172a',
+      borderWidth: 3,
+      hoverBorderColor: '#334155'
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: { padding: 16, usePointStyle: true, pointStyleWidth: 10 }
+      },
+      tooltip: {
+        callbacks: {
+          label: ctx => ` ${ctx.label}: ${ctx.raw.toLocaleString()} ล้านบาท (${((ctx.raw/12283)*100).toFixed(1)}%)`
+        }
+      }
+    }
+  }
+});
+document.getElementById('damageChart').parentElement.style.height = '280px';
+
+// ===== RELIEF CHART =====
+new Chart(document.getElementById('reliefChart'), {
+  type: 'bar',
+  data: {
+    labels: ['ศูนย์พักพิง', 'ผู้อพยพเข้าศูนย์', 'ต้องการอาหาร/วัน', 'จนท.&อสม.ลงพื้นที่', 'สายด่วน 1669/วัน'],
+    datasets: [
+      { label: 'จำนวน', data: [233, 4900, 240000, 3500, 7200], backgroundColor: '#3b82f6', borderRadius: 6, barThickness: 22 },
+    ]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: ctx => {
+            const v = ctx.raw;
+            if (v >= 100000) return ` ${(v/1000).toLocaleString()}K กล่อง`;
+            if (v >= 1000) return ` ${v.toLocaleString()} คน/สาย`;
+            return ` ${v} แห่ง`;
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        type: 'logarithmic',
+        grid: { color: '#1e293b' },
+        ticks: { callback: v => v>=1000?(v/1000)+'K':v }
+      },
+      y: { grid: { display: false } }
+    }
+  }
+});
+document.getElementById('reliefChart').parentElement.style.height = '250px';
+
+// ===== LEAFLET MAP =====
+const map = L.map('map').setView([13.7563, 100.6018], 11);
+
+// Dark tile layer
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
+  subdomains: 'abcd',
+  maxZoom: 19
+}).addTo(map);
+
+// District data with severity levels
+const districts = [
+  // Critical (red) - 8 districts
+  {name:'ลาดกระบัง',lat:13.723,lng:100.784,sev:'critical',households:15000,note:'เคหะร่มเกล้า'},
+  {name:'บางกะปิ',lat:13.765,lng:100.638,sev:'critical',households:25000,note:'แฟลตคลองจั่น'},
+  {name:'มีนบุรี',lat:13.812,lng:100.735,sev:'critical',households:8000,note:'สุวินทวงศ์'},
+  {name:'สะพานสูง',lat:13.770,lng:100.685,sev:'critical',households:6000,note:'เคหะรามอินทรา'},
+  {name:'สวนหลวง',lat:13.728,lng:100.629,sev:'critical',households:5000,note:'คลองประเวศ'},
+  {name:'บึงกุ่ม',lat:13.787,lng:100.655,sev:'critical',households:5000,note:'นวมินทร์'},
+  {name:'คลองสามวา',lat:13.860,lng:100.720,sev:'critical',households:4000,note:'หทัยราษฎร์'},
+  {name:'สายไหม',lat:13.890,lng:100.635,sev:'critical',households:3000,note:'พหลโยธิน'},
+  // High (orange) - sampled
+  {name:'จตุจักร',lat:13.828,lng:100.560,sev:'high',households:3500,note:'พหลโยธิน-เกษตร'},
+  {name:'ห้วยขวาง',lat:13.765,lng:100.573,sev:'high',households:2800,note:'เพชรบุรี-อโศก'},
+  {name:'หลักสี่',lat:13.888,lng:100.573,sev:'high',households:3000,note:'แจ้งวัฒนะ'},
+  {name:'ดอนเมือง',lat:13.914,lng:100.590,sev:'high',households:2500,note:'วิภาวดีรังสิต'},
+  {name:'คันนายาว',lat:13.800,lng:100.665,sev:'high',households:2200,note:'ประเสริฐมนูกิจ'},
+  {name:'หนองจอก',lat:13.845,lng:100.818,sev:'high',households:3000,note:'มิตรไมตรี'},
+  {name:'วังทองหลาง',lat:13.775,lng:100.610,sev:'moderate',households:1500,note:'ลาดพร้าว'},
+  {name:'บางเขน',lat:13.855,lng:100.595,sev:'moderate',households:1500,note:'รามอินทรา'},
+  {name:'วัฒนา',lat:13.738,lng:100.582,sev:'moderate',households:1800,note:'สุขุมวิท-ทองหล่อ'},
+  {name:'คลองเตย',lat:13.720,lng:100.565,sev:'moderate',households:1000,note:'พระราม4'},
+  {name:'ปทุมวัน',lat:13.740,lng:100.538,sev:'low',households:200,note:'น้ำลดแล้ว'},
+  {name:'บางรัก',lat:13.725,lng:100.517,sev:'low',households:100,note:'น้ำลดแล้ว'},
+];
+
+// Color by severity
+function sevColor(s) {
+  if (s==='critical') return '#dc2626';
+  if (s==='high') return '#f97316';
+  if (s==='moderate') return '#eab308';
+  return '#22c55e';
+}
+function sevRadius(s) {
+  if (s==='critical') return 14;
+  if (s==='high') return 11;
+  if (s==='moderate') return 9;
+  return 7;
+}
+
+districts.forEach(d => {
+  const circle = L.circleMarker([d.lat, d.lng], {
+    radius: sevRadius(d.sev),
+    fillColor: sevColor(d.sev),
+    color: '#0f172a',
+    weight: 2,
+    fillOpacity: 0.85
+  }).addTo(map);
+
+  circle.bindPopup(`
+    <div style="font-family:system-ui,sans-serif;font-size:13px;color:#f1f5f9;background:#0f172a;padding:4px;">
+      <strong style="font-size:15px;">${d.name}</strong><br>
+      <span style="color:#94a3b8;">ระดับ:</span> <span style="color:${sevColor(d.sev)};font-weight:700;">${
+        d.sev==='critical'?'🔴 วิกฤต':d.sev==='high'?'🟠 น้ำท่วมสูง':d.sev==='moderate'?'🟡 ปานกลาง':'🟢 น้ำลด'
+      }</span><br>
+      <span style="color:#94a3b8;">ครัวเรือนกระทบ:</span> ~${d.households.toLocaleString()}<br>
+      <span style="color:#94a3b8;">จุดสำคัญ:</span> ${d.note}
+    </div>
+  `, { maxWidth: 260 });
+});
+
+// Fit bounds to show all districts
+const bounds = L.latLngBounds(districts.map(d => [d.lat, d.lng]));
+map.fitBounds(bounds, { padding: [20, 20] });
+</script>
+
+</body>
+</html>
